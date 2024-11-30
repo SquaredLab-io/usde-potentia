@@ -1,0 +1,134 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border p-0 m-0 scroll-smooth;
+  }
+
+  html {
+    @apply text-base 2xl:text-[1.125rem] 3xl:text-[1.25rem] 4xl:text-[1.31rem];
+  }
+
+  body {
+    @apply h-screen w-full max-w-[2000px] overflow-x-hidden 3xl:border-x border-secondary-gray mx-auto text-white bg-primary-gray font-helvetica-neue tracking-wide;
+  }
+
+  /* variables for Shadcn Charts */
+  .root {
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+
+  table.leaderboard {
+    border-collapse: separate;
+    border-spacing: 0 0.7em;
+  }
+
+  tbody > tr.leaderboard {
+    border-bottom: 8px solid transparent;
+    /* margin-bottom: 8px; */
+  }
+
+  tbody > tr.leaderboard > td:first-child {
+    border-top-left-radius: 12px;
+    border-bottom-left-radius: 12px;
+  }
+
+  tbody > tr.leaderboard > td:last-child {
+    border-top-right-radius: 12px;
+    border-bottom-right-radius: 12px;
+  }
+}
+
+@layer utilities {
+  .bg-gradient-blue {
+    @apply bg-gradient-to-r from-primary-cyan to-primary-blue;
+  }
+
+  .bg-gradient-cyan {
+    background: linear-gradient(
+      284.37deg,
+      rgba(0, 153, 255, 0.4) 0%,
+      rgba(0, 204, 255, 0.4) 100%
+    );
+  }
+
+  .bg-gradient-white {
+    @apply bg-gradient-to-r from-white to-off-white;
+  }
+
+  .heading-gradient {
+    @apply bg-gradient-to-b text-transparent bg-clip-text from-[#00A3FF] to-[#26B2FF];
+  }
+
+  .page-center {
+    @apply flex flex-col h-[calc(100vh-80px)] lg:h-[calc(100vh-74px)] max-w-full; /* adjustment_height(header_height) */
+  }
+
+  .flex-col-center {
+    @apply flex flex-col items-center justify-center;
+  }
+
+  .flex-row-center {
+    @apply flex flex-row items-center justify-center;
+  }
+
+  .inline-flex-between {
+    @apply inline-flex justify-between items-center w-full;
+  }
+}
+
+@layer components {
+  .graph-tab {
+    @apply p-2 rounded-none bg-primary-gray data-[state=active]:bg-white data-[state=active]:text-black;
+  }
+
+  .active-tab-pools {
+    @apply py-2 px-4 data-[state=active]:border data-[state=active]:border-[#00A0FC] rounded-lg data-[state=active]:bg-[#0A344D];
+  }
+
+  .active-tab-leaderboard {
+    @apply py-2 px-6 rounded-lg border border-primary-gray data-[state=active]:border-tab-blue data-[state=active]:bg-[#0A344D] transition-colors duration-300 ease-linear;
+  }
+
+  .active-tab-trade {
+    @apply w-1/2 py-2 text-center font-medium text-sm/5 border-t border-secondary-gray bg-[#121F27] data-[state=active]:bg-primary-gray data-[state=active]:cursor-default data-[state=active]:pointer-events-none;
+  }
+  
+  .active-tab-trade-drawer {
+    @apply w-1/2 py-3 text-center font-medium text-sm/5 border-t border-secondary-gray bg-[#121F27] data-[state=active]:bg-primary-gray data-[state=active]:cursor-default data-[state=active]:pointer-events-none;
+  }
+}
+
+/* Scroll bar */
+*::-webkit-scrollbar {
+  display: none;
+}
+/* Trade History Scroll bar */
+.trade-history::-webkit-scrollbar {
+  display: block;
+  width: 4px;
+  height: 12px;
+}
+.trade-history::-webkit-scrollbar-thumb {
+  background: #01a1ff;
+  border-radius: 48px;
+  cursor: pointer;
+}
+
+/* Input element */
+/* For chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+/* For firefox */
+input[type="number"] {
+  -moz-appearance: textfield;
+}

@@ -1,0 +1,86 @@
+[
+  {
+    "type": "function",
+    "name": "createPool",
+    "inputs": [
+      {
+        "name": "poolInit",
+        "type": "tuple",
+        "internalType": "struct PotentiaPoolInit",
+        "components": [
+          {
+            "name": "underlying",
+            "type": "address",
+            "internalType": "address"
+          },
+          { "name": "power", "type": "uint256", "internalType": "uint256" },
+          { "name": "alpha", "type": "uint256", "internalType": "uint256" },
+          { "name": "beta", "type": "uint256", "internalType": "uint256" },
+          {
+            "name": "adjustRate",
+            "type": "uint256",
+            "internalType": "uint256"
+          },
+          { "name": "operator", "type": "address", "internalType": "address" }
+        ]
+      }
+    ],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "fetchOpPools",
+    "inputs": [],
+    "outputs": [
+      { "name": "poolAddr", "type": "address[]", "internalType": "address[]" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolCount",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolExists",
+    "inputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "outputs": [{ "name": "", "type": "bool", "internalType": "bool" }],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "poolOpMap",
+    "inputs": [
+      { "name": "", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [
+      { "name": "pools", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "event",
+    "name": "PoolCreated",
+    "inputs": [
+      {
+        "name": "poolAddr",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "poolOp",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  { "type": "error", "name": "ReentrancyGuardReentrantCall", "inputs": [] }
+]
