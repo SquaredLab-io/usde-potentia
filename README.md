@@ -1,157 +1,273 @@
-# Obsidian Protocol
+# Obsidian Protocol: Introducing USDe³ and Stablecoin Power Derivatives on Ethena Network
 
-# Power Derivatives for USDe and Stablecoins on Ethena Network for precise and superior hedging.
+## 1 \- Abstract
 
-## Abstract
+Power derivatives represent a groundbreaking innovation in DeFi, offering continuous funding without the risk of Long-Short liquidation. The Obsidian Protocol pioneers power derivatives through its novel design, enabling decentralized and permissionless perpetual power derivatives.
 
-The Obsidian Protocol introduces a groundbreaking framework for trading and hedging stablecoin power derivatives, anchored on Ethena’s USDe³—a cubic power derivative of the USDe stablecoin. By amplifying even minor price fluctuations through a cubic transformation, USDe³ provides traders and liquidity providers with a robust toolset for advanced speculation, risk management, and hedging.
+We analyzed traditional pricing models for power derivatives alongside novel bonding curve automated market-making models. Insights from this research have informed improvements in these approaches, setting the stage for the launch of the Obsidian Protocol.
 
-The protocol extends its utility to cross-stablecoin pairs, offering derivatives such as BTC⁴/USDe and ETH³/USDe, enabling traders to leverage amplified convexity on leading cryptocurrencies paired with stablecoins. These innovative derivatives create new opportunities for managing risk, executing arbitrage strategies, and enhancing market liquidity.
+By providing leveraged long and short exposure without the risks of liquidation, traders can access maximum leverage with greater capital efficiency, while liquidity providers are rewarded for their contributions. The Obsidian Protocol is uniquely positioned to consolidate significant liquidity, bridging the gap between traditional options markets and DeFi into a single, capital-efficient instrument.
 
-## Introduction to Power Derivatives
+This litepaper primarily focuses on the infrastructure and ecosystem being built around power derivatives within the Obsidian Protocol. Stay tuned for in-depth technical details, implementation frameworks, and backtesting simulations in subsequent documentation post-mainnet launch.
 
-### Defining Power Derivatives
+##
 
-**A power derivative is a perpetual derivative indexed to a power p of the price of an underlying instrument**. Given a price x of an asset such as BTC, the theoretical value of the BTC power derivative is:
+## 2 \- Introduction to USDe³ and Power Derivatives
 
-| BTCp=xp |
-| :-----: |
+### 2.1 Defining Power Derivatives
 
-Where:  
- p1  
- x \= price of the underlying instrument  
- p \= power
+A power derivative is a perpetual derivative indexed to a power pp of the price of an underlying instrument. In the case of the Ethena Network, the underlying instrument is the stablecoin USDe. The theoretical value of a power perpetual for USDe³ is:
 
-Under traditional pricing models, the price at which perpetual future is trading, called mark price, is kept in line with the index price xp through the funding fee mechanism. When the mark price surpasses the index price, long positions pay a funding fee to short positions. Conversely, if the index price exceeds the mark price, short positions must pay the funding fee to long positions.
+$$USDe^p=x^p , p >= 1$$
 
-- Longs pay shorts if **Mark price** \> **Index price**
-- Shorts pay longs if **Index price** \> **Mark price**
+Where:
 
-An alternative funding fee approach, suitable for automated market makers (AMMs), decays user positions depending on which side holds more liability to the liquidity reserve. If long holders hold more valuable positions than short holders, longs pay funding fees to shorts and liquidity providers. Analogously, if shorts hold more value, they pay funding fees to longs and liquidity providers.
+- 𝑝 ≥ 1
+- x= price of the underlying instrument
+- p= power
 
-- Longs pay shorts if **Long Positions value** \> **Short Positions value**
-- Shorts pay longs if **Short Positions** **value** \> **Long Positions value**
+The cubic relationship allows traders to gain amplified returns without requiring collateralized leverage, as the return profile is inherently convex. For example:
 
-Both funding fee mechanisms incentivize traders to take positions that receive funding fees. In limit order book and concentrated liquidity markets, such behavior pushes the mark price closer to the index price, effectively reducing deviations. Existing power derivative AMM models track price through a price oracle while the funding mechanism serves only as a financial incentive to liquidity providers and contrarian traders.
+- Positive Price Movements: A small increase in USDe price results in exponential gains for USDe³.
+- Negative Price Movements: Losses are less severe compared to traditional leveraged positions due to the nature of the cubic return function which are non-linear by design.
 
-Continuously funded power derivatives have **no expiration and provide positive convexity**. This means favorable price movements in the underlying asset yields greater positive returns compared to the absolute negative returns from equally sized unfavorable moves. In other words, power derivative holders earn more when the price moves in their favor and lose less when it moves against them.
+### 2.2 Pricing Models and Funding Mechanisms for USDe³
 
-For cases where p1, the power derivative return profile exhibits heightened sensitivity to the underlying return.  
-![](./assets/image3.png)
-**Figure 3**: The return of a power derivative vs the return of an underlying asset
+Under traditional perpetual futures models, the mark price (trading price of the derivative) is kept close to the index price (spot price of the underlying) using a funding fee mechanism:
 
-As the return on the underlying asset rises above zero, the power derivative's return increases exponentially, effectively providing traders with built-in leverage. This unique characteristic distinguishes power derivatives from traditional leveraged products, as **traders can amplify their returns without exposing themselves to liquidation risk**. By design, the power derivative's value (xp) always remains positive, ensuring traders are shielded from liquidation, even during periods of extreme market volatility.
+- Longs pay shorts if the mark price \> index price.
+- Shorts pay longs if the index price \> mark price.
 
-The absence of liquidation risk is the main advantage of power derivatives, making them particularly attractive to traders seeking to manage risk while still having the Obsidian for enhanced returns. This feature allows traders to maintain their positions through market turbulence, providing greater flexibility and control over their trading strategies. As a result, power derivatives offer a compelling alternative to traditional leveraged products, combining the Obsidian for amplified returns with a more robust risk management framework. This setup enables more efficient capital allocation when margin trading. The minimum leverage, approximately equal to power p, is experienced for small returns around 0\. Leverage increases exponentially with positive returns while diminishing with negative returns.  
-![](./assets/image4.png)
-**Figure 4**: The leverage of a power derivative vs the return in the underlying asset
+For USDe³, this principle is further refined through an automated funding mechanism tailored for decentralized markets. The funding fee depends on the relative value of long and short positions in the liquidity pool:
 
-Shorting perpetual futures is traditionally associated with collateral liquidation risk. To address this fundamental problem and eliminate liquidation risk, Obsidian Protocol introduces a novel bonding curve mechanism (to be announced in the implementation doc).
+- Longs pay shorts if the value of long positions \> short positions.
+- Shorts pay longs if the value of short positions \> long positions.
 
-### **USDe³: The Core Hedging Product**
+This approach ensures market balance by incentivizing traders automatically without the need of separate mark and index prices. .
 
-USDe³ is designed to maximize the utility of stablecoins in volatile and low-volatility conditions alike:
+### 2.3 Positive Convexity: The Advantage of USDe³
 
-- **Core Functionality**: Captures minor price movements of USDe through a cubic transformation, significantly amplifying returns while mitigating losses.
-- **Convex Returns**: A 1.005% increase in USDe results in a 3.045% return for USDe³:
+Power perpetuals like USDe³ offer built-in leverage through positive convexity:
 
-```
-rPP=(1+ 0.01005)^3 - 1
-= 0.0345 or 3.0454%
-```
+1. Exponential Gains: Favorable price movements in USDe result in exponentially higher returns for USDe³.
+2. Mitigated Losses: Adverse price changes result in smaller proportional losses, compared to traditional leverage.
+3. No Liquidation Risk: Unlike margin-based products, positions in USDe³ cannot be liquidated due to the inherent design of power perpetuals. The cubic transformation ensures that returns always remain above zero.
 
-Assuming USDe trades at 0.995, USDe3 would trade at 0.9850. A trader investing $10,000 into a USDe3 long position at $0.9850 would receive 10,151.51 USDe3 tokens. If USDelater trades at $1.005 and USDe3 at $1.015, the trader could cash out for $10,304.54, netting a $304.54 (**3.045%**) profit.
+For example:
 
-### USDT³: Example illustrating Stablecoin Fluctuations
+- If USDe moves from $0.995 to $1.005 (+1% change), the return on USDe³ is:
 
-The graph below compares the standard USDT price (green) with its cubic transformation, USDT³ over three days, illustrating the latter's pronounced response to market volatility.
+$$r_{PP}=(1+ 0.01005)^3-1= 0.0345=3.0454%$$
 
-![](./assets/image5.png)
+This characteristic makes USDe³ a powerful tool for traders seeking leveraged exposure with controlled risk.
 
-Price of USDT vs USDT³ over 3 days
+### 2.4 Market Applications for USDe³
 
-####
+The unique properties of USDe³ enable several use cases:
 
-### Core Use Cases
+1. Speculative Trading: Traders can capitalize on small price movements in USDe with amplified returns.
+2. Hedging Strategies: Use USDe³ to hedge against volatility or de-pegging risks in stablecoin markets.
+3. Arbitrage Opportunities: Exploit mispricings in USDe³ markets relative to the underlying spot price of USDe.
 
-- **Hedging**: Protect against short-term stablecoin volatility without exposure to liquidation risks.
-- **Speculation**: Amplify gains on minor price changes in stablecoin markets.
-- **Arbitrage**: Exploit pricing disparities across stablecoin derivatives and underlying assets.
+By leveraging the Ethena Network’s instant finality with zk proofs, sub-second block times, and economic security through staking, USDe³ markets can achieve unparalleled speed, reliability, and scalability.
 
-###
+##
 
-## Strategic Use Cases
+## 3 \- Protocol Design
 
-### **Speculative Trading**:
+Obsidian is an Automated Market Maker (AMM) that utilizes an asymptotic bonding curve, distinguishing itself from traditional decentralized exchanges like Uniswap. The key innovation lies in its automated liquidity management, which removes the need for liquidity providers (LPs) to manually adjust their positions within specific price ranges. This automation streamlines the liquidity provision process, offering a more hands-off automated experience for LPs.
 
-- Exploit micro-movements in USDe price to achieve exponential returns.
-- Effective for short-term, high-frequency trading strategies.
+Key Features
 
-### **Precision Hedging**:
+1. Automated Liquidity Concentration: Unlike Uniswap, where LPs need to constantly manage their liquidity positions, Obsidian automates this process. This ensures optimal liquidity distribution to mid-points without any manual intervention.
 
-- Use USDe3,USDe¹⁶ etc to hedge against minute fluctuations in stablecoin holdings or portfolios.
-- Allows for highly targeted risk mitigation without collateral liquidation risks.
+2. Adjustment Parameters (α\\alpha and β\\beta): Each Obsidian Pool is governed by two parameters:
 
-### **Market Making**:
+   - α\\alpha: Adjusts the long payoff.
+   - β\\beta: Adjusts the short payoff. These parameters are set during pool deployment and dynamically adjusted based on pool interactions.
 
-- LPs in USDe3,USDe¹⁶ etc pools can benefit from extreme convex funding fees in volatile markets.
+3. Separate Bonding Curves for Long and Short Positions:
 
-###
+   - Long Payoff (ϕ(x)\\phi(x)): Represents the payoff for long positions.
+   - Short Payoff (ψ(x)\\psi(x)): Represents the payoff for short positions. Here, xx is the normalized price of the underlying asset, rr is the pool reserves, and kk is the pool power.
 
-###
+4. Position Management via PTokens:
 
-###
+   - Positions are tokenized using ERC20 tokens called PTokens.
+   - There are three types of PTokens:
+     - LpPToken: Represents liquidity provider positions.
+     - LongPToken: Represents long positions.
+     - ShortPToken: Represents short positions.
+   - When a position is opened, the appropriate amount of PTokens is minted and transferred to the position creator.
 
-## Cross Derivative Pairs: BTC⁴/USDe, ETH³/USDe etc
+5. No Discrete Positions:
 
-### High-Leverage Trading with Convex Derivatives
+   - Obsidian maintains aggregated positions rather than individual ones.
+   - Traders can adjust their positions by trading PTokens, allowing for partial or full position management.
 
-The protocol introduces advanced cross-stablecoin markets, combining major cryptocurrencies like BTC and ETH with USDe stablecoin:
+Position Value Calculation
 
-- **BTC⁴/USDe**: A quartic power derivative offering exponential exposure to Bitcoin’s price movements relative to USDe.
-- **ETH³/USDe**: A cubic power derivative amplifying Ethereum's volatility against USDe.
+To determine the value of positions at any given time tt:
 
-### Customizable Convexity: Tailoring Risk and Return with Adjustable Power
+1. Parameters:
 
-A key feature allows users to customize the power p of their perpetual derivative to cater to diverse market participants. By selecting p, users can effectively tune position leverage and convexity according to their needs.
+   - Current Long Payoff (Φ\\Phi)
+   - Current Short Payoff (Ψ\\Psi)
+   - Amount of LongPTokens held (LongPTokenaccount\\{LongPToken}\_{\\t{account}})
+   - Amount of ShortPTokens held (ShortPTokenaccount\\{ShortPToken}\_{\\t{account}})
+   - Total LongPTokens in circulation (LongPTokentotal\\{LongPToken}\_{\\{total}})
+   - Total ShortPTokens in circulation (ShortPTokentotal\\{ShortPToken}\_{\\{total}})
 
-Such customization enables a wide range of power derivative products suitable for complex trading strategies, short-term speculative hedges, or simply vehicles for profit.
+2. Calculations:
 
-## No liquidations: Automatic deleveraging and position protection
+   - Long Position Value (LPV): $LPV=\frac{Φ×LongPToken_{account}}{LongPToken_{total}}$
+   - Short Position Value (SPV): $SPV=\frac{Ψ×ShortPToken_{account}}{ShortPToken_{total}}$
 
-Opening a long or short position through the Obsidian protocol doesn’t require collateral. Underlying assets are exchanged for tokens representing a position protected from reaching a negative value, ensuring liquidations never happen. The value of a long position can reach zero only if the underlying asset reaches zero. Analogous to this, the value of a short position can reach zero only if the underlying asset becomes infinity.
+3. Conversion to Base Currency (ETH\\{ETH} or others):
 
-## Liquidity providers: Incentives and Protection
+   - Obtain the current exchange rate (xx) from ObsidianPool.sol.
+   - Convert the position values:
+     - LPV in Base Currency: $LPV_{base}=LPV_{base}.x$
+     - SPV in Base Currency: $SPVbase=SPV_{base}.x$
 
-Liquidity pools set up on the protocol are designed to contain a single underlying asset. Such characteristics protect liquidity providers from ending up with excess inventory in assets they do not wish to hold. Although this often experienced issue is mitigated in our approach, liquidity providers can still experience losses. To compensate aforementioned risk liquidity providers receive compensation through funding fees. Additionally, continuous reference price adjustment mechanism continuously adjusts concentration of liquidity around the market price thus increasing the liquidity providers capital efficiency[^1]. Fee rates and reference price update parameters are set by pool operators or governed by pool DAO.
+Example of Minting LongPTokens
 
-## Diverse Product Suite: From Hedging to Speculation
+When adding ΔR\\Delta R to open a long position:
 
-Obsidian Protocol offers a diverse suite of power derivative products catering to various trading objectives and strategies. Whether users seek to hedge against short-term market volatility, speculate on asset prices, or employ sophisticated algorithmic trading techniques, our platform provides the necessary tools and flexibility.
+- If there are no LongPTokens in circulation: `mint(msg.sender,ΔR)`{mint}(\\text{msg.sender}, \\Delta R)
+- If LongPTokens are already in circulation: `mint(msg.sender, longSupply*ΔR/Φ)`
+  - Where longSupply is the total LongPTokens in circulation.
+  - msg.sender is the account opening the long position.
+  - Φ\\Phi is the current long payoff.
 
-Through power derivative instruments with varying convexity levels, users can fine-tune their risk exposure and optimize their returns based on their market view and risk appetite. In essence, traders can execute their strategies with greater precision and efficiency.
+Distinctive Approach to Bonding Curves
 
-## Power Pools: Permissionless Liquidity Provisioning
+Obsidian's use of separate bonding curves for long and short positions is a significant departure from traditional AMMs that use a single curve. This dual-curve system allows for more nuanced management of market dynamics and provides traders with clearer insights into their potential payoffs.
 
-Power Pool (PP) is the core protocol component that enables the creation of power derivative markets in a fully permissionless manner. The pool creator can manage the pool and delegate management roles. Alternatively, the pool ownership is transferable to the pool DAO. For end users, PPs enable seamless DEX-style trading of power derivatives against underlying assets.
+Advantages Over Traditional Platforms
 
-### Simple Pools: power derivatives
+- Simplified Liquidity Provision: Automation reduces the complexity for LPs, making the platform more accessible.
+- Enhanced Position Management: Tokenization of positions through PTokens allows for seamless trading and adjustment of positions.
+- Dynamic Adjustments: The adjustment parameters α\\alpha and β\\beta enable the protocol to respond dynamically to market conditions.
 
-Simple Pools contain a single power derivative of a specified power (e.g., USDe3_USDe). These pools provide a straightforward way for liquidity providers to offer power derivative trading for individual assets.
+##
 
-### Composite Pools: Power Derivatives Families
+## 4 \- Architecture
 
-Composite Pools contain a family of power derivative products (e.g., USDe3_USDe, USDe4_USDe, USDe5_USDe) sharing liquidity in the underlying asset. Composite Pools allow more efficient capital utilization and provide traders with multiple convexity options within a single pool.
+![](./assets/image.png)
 
-## Future Roadmap: Expanding the Power Derivatives Frontier
+### Obsidian Factory
 
-Obsidian Protocol is committed to expanding its offerings and driving the adoption of power derivatives. The key milestones on our roadmap include:
+The Obsidian Factory is a smart contract factory used to deploy Obsidian Pools. Pool Operators (POs) can invoke the createPool function on ObsidianFactory.sol to deploy pools with any specified power kk. For example, creating a pool with the underlying asset WBTC and k=2k \= 2 will deploy an Obsidian Pool that tracks WBTC2\\{WBTC}^2.
+
+### Obsidian Pools
+
+Once deployed with a specific power kk, an Obsidian Pool tracks the price of the underlying asset raised to that power. For instance, a pool with k \= 3 will track the price of the CRV asset cubed. Traders can open long or short positions on this pool, effectively taking positions on the derivative CRV3\\{CRV}^3.
+
+### PTokens
+
+Unlike other derivative systems where positions are represented by a unique one-to-one mapping between the trader and the position, Obsidian Pools track user positions through ERC20 tokens known as PTokens. This approach is in stark contrast to how Central Limit Order Books (CLOBs) maintain and register unique positions. Each time a new position is opened, the pool's specific PTokens are minted. Every pool has three types of PTokens:
+
+- LpPToken: Minted and transferred to Liquidity Providers (LPs) when they add liquidity.
+- LongPToken: Minted and transferred to traders when they open long positions.
+- ShortPToken: Minted and transferred to traders when they open short positions.
+
+Note: Each set of PTokens is specific to its pool, meaning every pool has its own unique PTokens.
+
+### Price Feed
+
+Obsidian Pools use price feeds to track the price of the underlying asset. We incorporate Chainlink oracles(Expanded to uniswap and redstone with testnet upgrade by 2024 end and more price feeds in Q1’25) to continuously monitor the market price, ensuring accurate and up-to-date information.
+
+## 5 \- Protocol Features
+
+1\. No Liquidations
+
+Users gain access to leveraged exposure without the risk of Long and Short liquidation. Obsidian maintains value even during extreme market volatility.
+
+- Long positions have zero value only if the underlying asset price drops to zero.
+- Short positions have zero value only if the underlying asset price rises to infinity.
+- If the price reverts from zero or infinity, the tokens representing the positions regain positive value; therefore, positions are never liquidated.
+
+---
+
+2\. Amplified Gains & Mitigated Losses
+
+Obsidian exhibits positive convexity, meaning favorable price movements yield greater positive returns compared to the absolute negative returns from equally sized unfavorable moves.
+
+Let's compare the risk-return profile of 5x leverage with x1.5x^{1.5}, a power derivative on Obsidian DEX:
+
+Scenario 1: The Price of BTC Increases by 20%
+
+- 5x Leverage: 100% profit
+- x1.5x^{1.5}: Approximately 148% profit
+
+Scenario 2: The Price of BTC Decreases by 20%
+
+- 5x Leverage: 100% loss (leading to liquidation)
+- x1.5x^{1.5}: Approximately 67% loss
+
+Conclusion:
+
+- A 20% increase in the underlying asset price (BTC) results in a 148% return.
+- A 20% decrease in the underlying asset price (BTC) results in a 67% loss.
+
+---
+
+3\. No Strikes or Expirations
+
+Crypto options markets are often fragmented across multiple strike prices and expiration dates, leading to inefficient capital utilization.
+
+Obsidian addresses this issue by providing continuous exposure without expiration dates. The absence of strikes or expirations helps consolidate liquidity from fragmented options markets into a single, efficient instrument.
+
+---
+
+4\. Create Low-Cost Power Pools
+
+Obsidian enables liquidity providers to create and manage power perpetual liquidity pools in a permissionless environment.
+
+Users can create low-cost pools in under a minute on Obsidian DEX.
+
+---
+
+5\. Trade Power Pools
+
+Users can trade existing power pools on Obsidian DEX. These pools can be either:
+
+- Simple Pools: Pools with a single power perpetual asset, e.g., x2x^2.
+- Composite Pools: Offer a variety of convexity options with multiple powers within a single pool, e.g., x2x^2, x3x^3.
+
+---
+
+6\. No Impermanent Loss for Liquidity Providers
+
+Simple pools and composite pools help liquidity providers avoid impermanent loss—the loss associated with providing liquidity.
+
+LPs are required to deposit only a single asset into the LP pool instead of a pair of assets, which helps them allocate capital efficiently while avoiding impermanent loss.
+
+## 6 \- Why We Are Building on the Ethena Network
+
+The Ethena Network provides the critical infrastructure and stablecoin design necessary to support the Obsidian Protocol’s vision for decentralized, scalable, and innovative financial products. By utilizing Ethena’s Ble Testnet and USDe, the protocol ensures high levels of stability, decentralization, and operational efficiency.
+
+#### Key Advantages of the Ethena Network:
+
+- USDe Onboarding: Simplified integration of Ethena’s native stablecoin into DeFi applications.
+- Sub-Second Block Times: Near-instant transactions provide seamless trading experiences.
+- Economic Security Through Staking: A robust staking framework underpins the network's stability.
+- Instant Finality with zk Proofs: Ensures transaction accuracy and security without delays.
+
+These features allow the Obsidian Protocol to leverage USDe as a stable and versatile foundation for power derivatives like USDe³, enabling scalable financial innovation within a secure and efficient ecosystem.
+
+##
+
+## 7 \- Future Roadmap: Expanding our Protocol
+
+The Obsidian Protocol is committed to advancing its ecosystem by focusing on USDe³ power derivatives and expanding cross-stablecoin pair derivatives. This roadmap outlines the key milestones for scaling USDe³/USD, USDe³/USDT, USDe³/USDC, and incorporating USDtb, another Ethena stablecoin, into its innovative derivative suite.
 
 ### Key Milestones:
 
 #### Q1 2025
 
-- Launch USDe³/USD, USDe³/USDT, and USDe³/USDC perpetual markets.
+- Launch USDe³/USD, USDe³/USDT, and USDe³/USDC derivative markets.
 - Introduce cross-stablecoin pair derivatives for arbitrage and hedging strategies.
 - Begin testing USDtb³ power derivatives alongside USDe³.
 
@@ -172,18 +288,3 @@ Obsidian Protocol is committed to expanding its offerings and driving the adopti
 - Incorporate real-world assets (RWAs) and advanced yield-bearing instruments into USDe and USDtb markets.
 - Decentralize governance of cross-stablecoin derivatives.
 - Collaborate with partners to launch structured products for USDe and USDtb markets.
-
-## Why We Are Building on the Ethena Network
-
-The Ethena Network provides the critical infrastructure and stablecoin design necessary to support the Obsidian Protocol’s vision for decentralized, scalable, and innovative financial products. By utilizing Ethena’s Ble Testnet and USDe, the protocol ensures high levels of stability, decentralization, and operational efficiency.
-
-### Key Advantages of the Ethena Network:
-
-- USDe Onboarding: Simplified integration of Ethena’s native stablecoin into DeFi applications.
-- Sub-Second Block Times: Near-instant transactions provide seamless trading experiences.
-- Economic Security Through Staking: A robust staking framework underpins the network's stability.
-- Instant Finality with zk Proofs: Ensures transaction accuracy and security without delays.
-
-These features allow the Obsidian Protocol to leverage USDe as a stable and versatile foundation for power derivatives like USDe³, enabling scalable financial innovation within a secure and efficient ecosystem.
-
-[^1]: Liquidity concentration is not 1:1 compared with Uniswap. On Uniswap, users manage liquidity concentration manually while our model manages liquidity concentration automatically
